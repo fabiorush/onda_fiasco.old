@@ -1,1 +1,0 @@
-cmd_/home/flus/Fiasco/flus/client/app_comm.ko := ld -r -m elf_i386 -T /usr/src/linux-3.2.12-gentoo/scripts/module-common.lds --build-id  -o /home/flus/Fiasco/flus/client/app_comm.ko /home/flus/Fiasco/flus/client/app_comm.o /home/flus/Fiasco/flus/client/app_comm.mod.o

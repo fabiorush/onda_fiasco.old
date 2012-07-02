@@ -1,8 +1,8 @@
 //static /* const */ DEVICE_ATTR(pincount, 0644,
-//                app_comm_pincount_show, app_comm_pincount_store);
+//                onda_pincount_show, onda_pincount_store);
 
 /*static struct class gpio_class = {
-        .name =         "app_comm",
+        .name =         "onda",
         .owner =        THIS_MODULE,
 
         .class_attrs =  gpio_class_attrs,
@@ -24,30 +24,42 @@
 //#define MAJOR_NUM 200
 //#define DEVICE_NAME "cdev"
 
-int pincount = 10;
+int pincount = 100;
+int interval = 10;
+int pwm_enable = 0;
 
 static DEFINE_MUTEX(sysfs_lock);
 
-static ssize_t app_comm_pincount_show(struct device *dev,
+static ssize_t onda_pincount_show(struct device *dev,
                 struct device_attribute *attr, char *buf);
-//static ssize_t app_comm_pincount_store(struct device *dev,
+//static ssize_t onda_pincount_store(struct device *dev,
 //                struct device_attribute *attr, const char *buf, size_t size);
 
-//static struct file_operations fops;
+static ssize_t onda_interval_show(struct device *dev,
+                struct device_attribute *attr, char *buf);
+static ssize_t onda_interval_store(struct device *dev,
+                struct device_attribute *attr, const char *buf, size_t size);
 
-static struct class_attribute app_comm_class_attr[] = {
-	//__ATTR(pincount, 0644, app_comm_pincount_show, app_comm_pincount_store),
-	__ATTR(pincount, 0644, app_comm_pincount_show, NULL),
+static ssize_t onda_pwm_show(struct device *dev,
+                struct device_attribute *attr, char *buf);
+static ssize_t onda_pwm_store(struct device *dev,
+                struct device_attribute *attr, const char *buf, size_t size);
+
+static struct class_attribute onda_class_attr[] = {
+	//__ATTR(pincount, 0644, onda_pincount_show, onda_pincount_store),
+	__ATTR(button_count, 0644, onda_pincount_show, NULL),
+	__ATTR(onda_interval, 0644, onda_interval_show, onda_interval_store),
+	__ATTR(pwm_enable, 0644, onda_pwm_show, onda_pwm_store),
 	__ATTR_NULL
 };
 
-static struct class app_comm_drv = {
-	.name = "app_comm",
+static struct class onda_drv = {
+	.name = "onda",
 	.owner = THIS_MODULE,
-	.class_attrs = &app_comm_class_attr,
+	.class_attrs = &onda_class_attr,
 };
 
-static ssize_t app_comm_pincount_show(struct device *dev,
+static ssize_t onda_pincount_show(struct device *dev,
                 struct device_attribute *attr, char *buf)
 {
 	ssize_t status;
@@ -60,14 +72,53 @@ static ssize_t app_comm_pincount_show(struct device *dev,
 	return status;
 }
 
-/*static ssize_t app_comm_pincount_store(struct device *dev,
-                struct device_attribute *attr, const char *buf, size_t size) {
+static ssize_t onda_interval_show(struct device *dev,
+                struct device_attribute *attr, char *buf)
 {
+	ssize_t status;
+
+	mutex_lock(&sysfs_lock);
+	
+	status = sprintf(buf, "%d\n", interval);
+	
+	mutex_unlock(&sysfs_lock);
+	return status;
+}
+
+static ssize_t onda_interval_store(struct device *dev,
+                struct device_attribute *attr, const char *buf, size_t size)
+{
+	int value;
+	if (sscanf(buf,"%d\n", &value) > 0) {
+		interval = value;
+	}
 	return size;
-}*/
+}
 
+static ssize_t onda_pwm_show(struct device *dev,
+                struct device_attribute *attr, char *buf)
+{
+	ssize_t status;
 
-static int app_comm_init(void)
+	mutex_lock(&sysfs_lock);
+	
+	status = sprintf(buf, "%d\n", pwm_enable);
+	
+	mutex_unlock(&sysfs_lock);
+	return status;
+}
+
+static ssize_t onda_pwm_store(struct device *dev,
+                struct device_attribute *attr, const char *buf, size_t size)
+{
+	int value;
+	if (sscanf(buf,"%d\n", &value) > 0) {
+		pwm_enable = value;
+	}
+	return size;
+}
+
+static int onda_init(void)
 {
 	int status;
 	/*status = register_chrdev(MAJOR_NUM, DEVICE_NAME, &fops);
@@ -76,20 +127,20 @@ static int app_comm_init(void)
 	else*/
 	printk("Hello World\n");
 
-	status = class_register(&app_comm_drv);
+	status = class_register(&onda_drv);
 	if(status < 0)
 		printk("Registering Class Failed\n");
 
 	return 0;
 }
 
-static void app_comm_exit(void)
+static void onda_exit(void)
 {
-	class_unregister(&app_comm_drv);
+	class_unregister(&onda_drv);
 	//unregister_chrdev(MAJOR_NUM, DEVICE_NAME);
 	printk(" GoodBye, world\n");
 }
 
-module_init(app_comm_init);
-module_exit(app_comm_exit);
+module_init(onda_init);
+module_exit(onda_exit);
 MODULE_LICENSE("GPL");
