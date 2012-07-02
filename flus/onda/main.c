@@ -9,6 +9,10 @@
 #define in32(a)		*((unsigned int *)(a))
 #define out32(a,b)	*((unsigned int *)(a)) = (b)
 
+int pincount = 100;
+int interval = 10;
+int pwm_enable = 0;
+
 /*static void dump_vbus(void)
 {
 	l4io_device_handle_t devhandle = l4io_get_root_device();
